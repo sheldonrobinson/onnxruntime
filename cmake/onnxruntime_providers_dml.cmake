@@ -7,7 +7,11 @@
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.cc"
   )
   source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_cc_srcs})
-  onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+  if(onnxruntime_BUILD_SHARED_LIB)
+	onnxruntime_add_shared_library_module(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+  else()
+	onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+  endif()
   onnxruntime_add_include_to_target(onnxruntime_providers_dml
     onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 safeint_interface ${WIL_TARGET}
   )
