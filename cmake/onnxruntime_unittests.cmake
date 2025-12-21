@@ -1806,9 +1806,9 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
         "${ONNXRUNTIME_SHARED_LIB_TEST_SRC_DIR}/cuda_ops.cu"
         "${TEST_SRC_DIR}/testdata/custom_op_library/cuda/cuda_ops.*")
     list(APPEND custom_op_lib_include ${CUDAToolkit_INCLUDE_DIRS} ${CUDNN_INCLUDE_DIR})
-    if (HAS_QSPECTRE)
-      list(APPEND custom_op_lib_option "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:--compiler-options /Qspectre>")
-    endif()
+    # if (HAS_QSPECTRE)
+      # list(APPEND custom_op_lib_option "$<$<COMPILE_LANGUAGE:CUDA>:SHELL:--compiler-options /Qspectre>")
+    # endif()
     set(custom_op_lib_link ${custom_op_lib_link} CUDA::cudart)
   endif()
 

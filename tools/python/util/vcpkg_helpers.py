@@ -686,7 +686,7 @@ def generate_windows_triplets(build_dir: str, configs: set[str], toolset_version
                                             ]
                                         ldflags = []
                                         if enable_binskim:
-                                            cflags += ["/guard:cf", "/Qspectre", "/W3"]
+                                            cflags += ["/guard:cf", "/W3"]
                                             ldflags = ["/profile", "/DYNAMICBASE"]
                                         elif enable_asan:
                                             cflags.append("/fsanitize=address")

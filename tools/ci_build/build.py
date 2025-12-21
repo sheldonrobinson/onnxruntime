@@ -1141,8 +1141,8 @@ def generate_build_tree(
                 # do not need to have it.
                 ldflags = ["/profile", "/DYNAMICBASE"]
                 # Address Sanitizer libs do not have a Qspectre version. So they two cannot be both enabled.
-                if not args.enable_address_sanitizer:
-                    cflags += ["/Qspectre"]
+                # if not args.enable_address_sanitizer:
+                #    cflags += ["/Qspectre"]
                 if config == "Release":
                     cflags += ["/O2", "/Ob2", "/DNDEBUG"]
                 elif config == "RelWithDebInfo":
