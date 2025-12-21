@@ -71,17 +71,17 @@ if (NOT onnxruntime_USE_CUSTOM_DIRECTML)
 else()
   if (dml_EXTERNAL_PROJECT)
     set(dml_preset_config $<IF:$<CONFIG:Debug>,debug,release>)
-    set(dml_preset_name ${onnxruntime_target_platform}-win-redist-${dml_preset_config})
+    set(dml_preset_name win-${onnxruntime_target_platform})
     include(ExternalProject)
     ExternalProject_Add(
         directml_repo
-        GIT_REPOSITORY https://dev.azure.com/microsoft/WindowsAI/_git/DirectML
-        GIT_TAG a5312f72c51864b4d705ac62d25d08bcd88c4fb1
+        GIT_REPOSITORY https://github.com/sheldonrobinson/DirectML.git
+        GIT_TAG 3bb309710072b93fb707073cef408f2331a7cd6e
         GIT_SHALLOW OFF # not allowed when GIT_TAG is a commit SHA, which is preferred (it's stable, unlike branches)
         GIT_PROGRESS ON
         BUILD_IN_SOURCE ON
         CONFIGURE_COMMAND ${CMAKE_COMMAND} --preset ${dml_preset_name} -DDML_BUILD_TESTS=OFF
-        BUILD_COMMAND ${CMAKE_COMMAND} --build --preset ${dml_preset_name}
+        BUILD_COMMAND ${CMAKE_COMMAND} --build --preset ${dml_preset_name}-${dml_preset_config}
         INSTALL_COMMAND ${CMAKE_COMMAND} --install build/${dml_preset_name}
         STEP_TARGETS install
     )
