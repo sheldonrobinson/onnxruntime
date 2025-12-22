@@ -1,44 +1,20 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-  file(GLOB_RECURSE onnxruntime_providers_dml_ep_srcs CONFIGURE_DEPENDS
+  file(GLOB_RECURSE onnxruntime_providers_dml_cc_srcs CONFIGURE_DEPENDS
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.h"
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.cpp"
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.cc"
   )
-  
-  if(NOT onnxruntime_BUILD_SHARED_LIB)
-	file(GLOB_RECURSE
-         onnxruntime_providers_dml_shared_lib_srcs CONFIGURE_DEPENDS
-         "${ONNXRUNTIME_ROOT}/core/providers/shared_library/*.h"
-         "${ONNXRUNTIME_ROOT}/core/providers/shared_library/*.cc"
-    )
-	set(onnxruntime_providers_dml_srcs ${onnxruntime_providers_dml_ep_srcs}
-                                       ${onnxruntime_providers_dml_shared_lib_srcs})
-
-    source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_srcs})
-	onnxruntime_add_shared_library_module(onnxruntime_providers_dml ${onnxruntime_providers_dml_srcs})
-	onnxruntime_add_include_to_target(onnxruntime_providers_dml ${ONNXRUNTIME_PROVIDERS_SHARED} ${ABSEIL_LIBS} ${GSL_TARGET} onnx
-                                                                onnxruntime_common Boost::mp11 safeint_interface
-                                                                ${WIL_TARGET} Eigen3::Eigen)
-	target_compile_definitions(onnxruntime_providers_dml PRIVATE FILE_NAME=\"onnxruntime_providers_dml.dll\")
-	add_dependencies(onnxruntime_providers_dml onnxruntime_providers_shared ${onnxruntime_EXTERNAL_DEPENDENCIES})
-	set_property(TARGET onnxruntime_providers_dml APPEND_STRING PROPERTY LINK_FLAGS "-DEF:${ONNXRUNTIME_ROOT}/core/providers/dml/symbols.def")
-  else()
-    set(onnxruntime_providers_dml_srcs ${onnxruntime_providers_dml_ep_srcs})
-	source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_srcs})
-	
-	onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_srcs})
-	onnxruntime_add_include_to_target(onnxruntime_providers_dml onnxruntime_common onnxruntime_framework ${GSL_TARGET}
-																onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers 
-																Boost::mp11 safeint_interface ${WIL_TARGET} Eigen3::Eigen)
-	add_dependencies(onnxruntime_providers_dml onnx ${onnxruntime_EXTERNAL_DEPENDENCIES})
-  endif()
-  
+  source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_cc_srcs})
+  onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+  onnxruntime_add_include_to_target(onnxruntime_providers_dml
+    onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 safeint_interface ${WIL_TARGET}
+  )
   if(TARGET Microsoft::DirectX-Headers)
     onnxruntime_add_include_to_target(onnxruntime_providers_dml Microsoft::DirectX-Headers)
   endif()
-  
+  add_dependencies(onnxruntime_providers_dml ${onnxruntime_EXTERNAL_DEPENDENCIES})
   target_include_directories(onnxruntime_providers_dml PRIVATE
     ${ONNXRUNTIME_ROOT}
   )
@@ -72,12 +48,14 @@
     else()
       add_dependencies(${target} RESTORE_PACKAGES)
       target_link_libraries(${target} PRIVATE "${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform}-win/DirectML.lib")
-      target_compile_definitions(${target} PRIVATE DML_TARGET_VERSION_USE_LATEST)
+        target_compile_definitions(${target} PRIVATE DML_TARGET_VERSION_USE_LATEST)
     endif()
   endfunction()
 
   target_add_dml(onnxruntime_providers_dml)
-  target_link_libraries(onnxruntime_providers_dml PRIVATE ${ONNXRUNTIME_PROVIDERS_SHARED} onnxruntime_common onnxruntime_framework)
+  target_link_libraries(onnxruntime_providers_dml PRIVATE onnxruntime_common)
+  target_link_libraries(onnxruntime_providers_dml PRIVATE onnxruntime_framework)
+  onnxruntime_add_include_to_target(onnxruntime_providers_dml onnxruntime_common)
   if (GDK_PLATFORM STREQUAL Scarlett)
     target_link_libraries(onnxruntime_providers_dml PRIVATE ${gdk_dx_libs})
   else()
@@ -104,15 +82,14 @@
   install(FILES ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/
   )
-  
 
   set_target_properties(onnxruntime_providers_dml PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(onnxruntime_providers_dml PROPERTIES FOLDER "ONNXRuntime")
 
-if (NOT onnxruntime_BUILD_SHARED_LIB)
-	install(TARGETS onnxruntime_providers_dml EXPORT ${PROJECT_NAME}Targets
-		  ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
-		  LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
-		  RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
-		  FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
-endif()
+  if (NOT onnxruntime_BUILD_SHARED_LIB)
+    install(TARGETS onnxruntime_providers_dml EXPORT ${PROJECT_NAME}Targets
+            ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+            FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
+  endif()
