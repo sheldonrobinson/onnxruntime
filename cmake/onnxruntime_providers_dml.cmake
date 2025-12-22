@@ -1,26 +1,39 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-  file(GLOB_RECURSE onnxruntime_providers_dml_cc_srcs CONFIGURE_DEPENDS
+  file(GLOB_RECURSE onnxruntime_providers_dml_ep_srcs CONFIGURE_DEPENDS
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.h"
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.cpp"
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.cc"
   )
-  source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_cc_srcs})
-  # if(onnxruntime_BUILD_SHARED_LIB)
-	# onnxruntime_add_shared_library_module(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
-	# onnxruntime_add_include_to_target(onnxruntime_providers_dml ${ONNXRUNTIME_PROVIDERS_SHARED} ${ABSEIL_LIBS} ${GSL_TARGET} onnx
-                                                                # onnxruntime_common Boost::mp11 safeint_interface
-                                                                # ${WIL_TARGET})
-	# target_compile_definitions(onnxruntime_providers_dml PRIVATE FILE_NAME=\"onnxruntime_providers_dml.dll\")
-	# add_dependencies(onnxruntime_providers_dml onnxruntime_providers_shared ${onnxruntime_EXTERNAL_DEPENDENCIES})
-  # else()
-	onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
-	onnxruntime_add_include_to_target(onnxruntime_providers_dml onnxruntime_common onnxruntime_framework 
+  
+  if(onnxruntime_BUILD_SHARED_LIB)
+	file(GLOB_RECURSE
+         onnxruntime_providers_dml_shared_lib_srcs CONFIGURE_DEPENDS
+         "${ONNXRUNTIME_ROOT}/core/providers/shared_library/*.h"
+         "${ONNXRUNTIME_ROOT}/core/providers/shared_library/*.cc"
+    )
+	set(onnxruntime_providers_dml_srcs ${onnxruntime_providers_dml_ep_srcs}
+                                       ${onnxruntime_providers_dml_shared_lib_srcs})
+
+    source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_srcs})
+	onnxruntime_add_shared_library_module(onnxruntime_providers_dml ${onnxruntime_providers_dml_srcs})
+	onnxruntime_add_include_to_target(onnxruntime_providers_dml ${ONNXRUNTIME_PROVIDERS_SHARED} ${ABSEIL_LIBS} ${GSL_TARGET} onnx
+                                                                onnxruntime_common Boost::mp11 safeint_interface
+                                                                ${WIL_TARGET} Eigen3::Eigen)
+	target_compile_definitions(onnxruntime_providers_dml PRIVATE FILE_NAME=\"onnxruntime_providers_dml.dll\")
+	add_dependencies(onnxruntime_providers_dml onnxruntime_providers_shared ${onnxruntime_EXTERNAL_DEPENDENCIES})
+	set_property(TARGET onnxruntime_providers_dml APPEND_STRING PROPERTY LINK_FLAGS "-DEF:${ONNXRUNTIME_ROOT}/core/providers/dml/symbols.def")
+  else()
+    set(onnxruntime_providers_dml_srcs ${onnxruntime_providers_dml_ep_srcs})
+	source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_srcs})
+	
+	onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_srcs})
+	onnxruntime_add_include_to_target(onnxruntime_providers_dml onnxruntime_common onnxruntime_framework ${GSL_TARGET}
 																onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers 
-																Boost::mp11 safeint_interface ${WIL_TARGET})
+																Boost::mp11 safeint_interface ${WIL_TARGET} Eigen3::Eigen)
 	add_dependencies(onnxruntime_providers_dml onnx ${onnxruntime_EXTERNAL_DEPENDENCIES})
-  # endif()
+  endif()
   
   if(TARGET Microsoft::DirectX-Headers)
     onnxruntime_add_include_to_target(onnxruntime_providers_dml Microsoft::DirectX-Headers)
