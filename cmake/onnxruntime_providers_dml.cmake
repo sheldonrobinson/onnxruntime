@@ -7,7 +7,7 @@
     "${ONNXRUNTIME_ROOT}/core/providers/dml/*.cc"
   )
   
-  if(onnxruntime_BUILD_SHARED_LIB)
+  if(NOT onnxruntime_BUILD_SHARED_LIB)
 	file(GLOB_RECURSE
          onnxruntime_providers_dml_shared_lib_srcs CONFIGURE_DEPENDS
          "${ONNXRUNTIME_ROOT}/core/providers/shared_library/*.h"
