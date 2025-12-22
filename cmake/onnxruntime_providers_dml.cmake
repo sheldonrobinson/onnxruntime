@@ -101,24 +101,20 @@
     target_compile_options(onnxruntime_providers_dml PRIVATE "/W3")
   endif()
 
-  # install(FILES ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h
-    # DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/
-  # )
+  install(FILES ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/
+  )
   
-  set(ONNXRUNTIME_DML_PROVIDER_PUBLIC_HEADERS
-        "${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h"
-      )
 
   set_target_properties(onnxruntime_providers_dml PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(onnxruntime_providers_dml PROPERTIES FOLDER "ONNXRuntime")
   set_target_properties(onnxruntime_providers_dml PROPERTIES
     PUBLIC_HEADER "${ONNXRUNTIME_DML_PROVIDER_PUBLIC_HEADERS}")
 
-  # if (NOT onnxruntime_BUILD_SHARED_LIB)
-    install(TARGETS onnxruntime_providers_dml EXPORT ${PROJECT_NAME}Targets
-		  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime
-	      ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+if (NOT onnxruntime_BUILD_SHARED_LIB)
+	install(TARGETS onnxruntime_providers_dml EXPORT ${PROJECT_NAME}Targets
+		  ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		  LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 		  RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
 		  FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
-  # endif()
+endif()
