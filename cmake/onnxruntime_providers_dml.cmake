@@ -9,6 +9,11 @@
   source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_cc_srcs})
   if(onnxruntime_BUILD_SHARED_LIB)
 	onnxruntime_add_shared_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+	if (CMAKE_SYSTEM_NAME MATCHES "AIX")
+      set_target_properties(onnxruntime_providers_dml PROPERTIES AIX_SHARED_LIBRARY_ARCHIVE OFF)
+    endif()
+	target_compile_definitions(onnxruntime_providers_dml PRIVATE FILE_NAME=\"onnxruntime_providers_dml.dll\")
+	add_dependenciesadd_dependencies(onnxruntime_providers_dml onnxruntime_providers_shared)
   else()
 	onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
   endif()
@@ -52,14 +57,12 @@
     else()
       add_dependencies(${target} RESTORE_PACKAGES)
       target_link_libraries(${target} PRIVATE "${DML_PACKAGE_DIR}/bin/${onnxruntime_target_platform}-win/DirectML.lib")
-        target_compile_definitions(${target} PRIVATE DML_TARGET_VERSION_USE_LATEST)
+      target_compile_definitions(${target} PRIVATE DML_TARGET_VERSION_USE_LATEST)
     endif()
   endfunction()
 
   target_add_dml(onnxruntime_providers_dml)
-  target_link_libraries(onnxruntime_providers_dml PRIVATE onnxruntime_common)
-  target_link_libraries(onnxruntime_providers_dml PRIVATE onnxruntime_framework)
-  onnxruntime_add_include_to_target(onnxruntime_providers_dml onnxruntime_common)
+  target_link_libraries(onnxruntime_providers_dml PRIVATE ${ONNXRUNTIME_PROVIDERS_SHARED} onnxruntime_common onnxruntime_framework)
   if (GDK_PLATFORM STREQUAL Scarlett)
     target_link_libraries(onnxruntime_providers_dml PRIVATE ${gdk_dx_libs})
   else()
@@ -83,17 +86,24 @@
     target_compile_options(onnxruntime_providers_dml PRIVATE "/W3")
   endif()
 
-  install(FILES ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/
-  )
+  # install(FILES ${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h
+    # DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime/
+  # )
+  
+  set(ONNXRUNTIME_DML_PROVIDER_PUBLIC_HEADERS
+        "${PROJECT_SOURCE_DIR}/../include/onnxruntime/core/providers/dml/dml_provider_factory.h"
+      )
 
   set_target_properties(onnxruntime_providers_dml PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(onnxruntime_providers_dml PROPERTIES FOLDER "ONNXRuntime")
+  set_target_properties(onnxruntime_providers_dml PROPERTIES
+    PUBLIC_HEADER "${ONNXRUNTIME_DML_PROVIDER_PUBLIC_HEADERS}")
 
-  if (NOT onnxruntime_BUILD_SHARED_LIB)
+  # if (NOT onnxruntime_BUILD_SHARED_LIB)
     install(TARGETS onnxruntime_providers_dml EXPORT ${PROJECT_NAME}Targets
-            ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
-            FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
-  endif()
+		  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/onnxruntime
+	      ARCHIVE   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		  LIBRARY   DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		  RUNTIME   DESTINATION ${CMAKE_INSTALL_BINDIR}
+		  FRAMEWORK DESTINATION ${CMAKE_INSTALL_BINDIR})
+  # endif()
