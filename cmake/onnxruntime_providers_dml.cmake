@@ -108,8 +108,6 @@
 
   set_target_properties(onnxruntime_providers_dml PROPERTIES LINKER_LANGUAGE CXX)
   set_target_properties(onnxruntime_providers_dml PROPERTIES FOLDER "ONNXRuntime")
-  set_target_properties(onnxruntime_providers_dml PROPERTIES
-    PUBLIC_HEADER "${ONNXRUNTIME_DML_PROVIDER_PUBLIC_HEADERS}")
 
 if (NOT onnxruntime_BUILD_SHARED_LIB)
 	install(TARGETS onnxruntime_providers_dml EXPORT ${PROJECT_NAME}Targets
