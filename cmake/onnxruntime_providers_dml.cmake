@@ -8,22 +8,27 @@
   )
   source_group(TREE ${ONNXRUNTIME_ROOT}/core FILES ${onnxruntime_providers_dml_cc_srcs})
   if(onnxruntime_BUILD_SHARED_LIB)
-	onnxruntime_add_shared_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+	onnxruntime_add_shared_library_module(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+	onnxruntime_add_include_to_target(onnxruntime_providers_dml ${ONNXRUNTIME_PROVIDERS_SHARED} ${ABSEIL_LIBS} ${GSL_TARGET} onnx
+                                                                onnxruntime_common Boost::mp11 safeint_interface
+                                                                ${WIL_TARGET})
 	if (CMAKE_SYSTEM_NAME MATCHES "AIX")
       set_target_properties(onnxruntime_providers_dml PROPERTIES AIX_SHARED_LIBRARY_ARCHIVE OFF)
     endif()
 	target_compile_definitions(onnxruntime_providers_dml PRIVATE FILE_NAME=\"onnxruntime_providers_dml.dll\")
-	add_dependenciesadd_dependencies(onnxruntime_providers_dml onnxruntime_providers_shared)
+	add_dependencies(onnxruntime_providers_dml onnxruntime_providers_shared ${onnxruntime_EXTERNAL_DEPENDENCIES})
   else()
 	onnxruntime_add_static_library(onnxruntime_providers_dml ${onnxruntime_providers_dml_cc_srcs})
+	onnxruntime_add_include_to_target(onnxruntime_providers_dml onnxruntime_common onnxruntime_framework 
+																onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers 
+																Boost::mp11 safeint_interface ${WIL_TARGET})
+	add_dependencies(onnxruntime_providers_dml onnx ${onnxruntime_EXTERNAL_DEPENDENCIES})
   endif()
-  onnxruntime_add_include_to_target(onnxruntime_providers_dml
-    onnxruntime_common onnxruntime_framework onnx onnx_proto ${PROTOBUF_LIB} flatbuffers::flatbuffers Boost::mp11 safeint_interface ${WIL_TARGET}
-  )
+  
   if(TARGET Microsoft::DirectX-Headers)
     onnxruntime_add_include_to_target(onnxruntime_providers_dml Microsoft::DirectX-Headers)
   endif()
-  add_dependencies(onnxruntime_providers_dml ${onnxruntime_EXTERNAL_DEPENDENCIES})
+  
   target_include_directories(onnxruntime_providers_dml PRIVATE
     ${ONNXRUNTIME_ROOT}
   )
