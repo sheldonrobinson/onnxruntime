@@ -155,20 +155,40 @@
             "configurePreset": "x64-windows",
             "configuration": "Debug"
         },
+		{
+            "name": "x64-windows-release",
+            "configurePreset": "x64-windows",
+            "configuration": "Release"
+        },
         {
             "name": "x64-windows-vcpkg-debug",
             "configurePreset": "x64-windows-vcpkg",
             "configuration": "Debug"
+        },
+		{
+            "name": "x64-windows-vcpkg-release",
+            "configurePreset": "x64-windows-vcpkg",
+            "configuration": "Release"
         },
         {
             "name": "x64-osx-debug",
             "configurePreset": "x64-osx",
             "configuration": "Debug"
         },
+		{
+            "name": "x64-osx-release",
+            "configurePreset": "x64-osx",
+            "configuration": "Release"
+        },
         {
             "name": "x64-osx-vcpkg-debug",
             "configurePreset": "x64-osx-vcpkg",
             "configuration": "Debug"
+        },
+		{
+            "name": "x64-osx-vcpkg-release",
+            "configurePreset": "x64-osx-vcpkg",
+            "configuration": "Release"
         }
     ],
     "testPresets": [
