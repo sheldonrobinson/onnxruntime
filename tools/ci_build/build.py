@@ -1158,11 +1158,11 @@ def generate_build_tree(
                 if config == "Release":
                     cflags += ["/O2", "/Ob2", "/DNDEBUG"]
                 elif config == "RelWithDebInfo":
-                    cflags += ["/O2", "/Ob1", "/DNDEBUG"]
+                    cflags += ["/Ob1", "/DNDEBUG"]
                 elif config == "Debug":
-                    cflags += ["/Ob0", "/Od", "/RTC1"]
+                    cflags += ["/Ob0", "/Od"]
                 elif config == "MinSizeRel":
-                    cflags += ["/O1", "/Ob1", "/DNDEBUG"]
+                    cflags += ["/Ob1", "/DNDEBUG"]
                 if args.enable_address_sanitizer:
                     cflags += ["/fsanitize=address"]
                 cxxflags = cflags.copy()
